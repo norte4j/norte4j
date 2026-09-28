@@ -1,14 +1,14 @@
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Moon, Sun } from "lucide-react";
-// import logo from "@/assets/logo.png";
+import {useEffect, useState} from "react";
+import {AnimatePresence, motion} from "framer-motion";
+import {Menu, X} from "lucide-react";
 
 const navItems = [
-  { label: "Inscrição", href: "#hero" },
-  { label: "Eventos", href: "#eventos" },
-  // { label: "Galeria", href: "#galeria" },
-  { label: "Parceiros", href: "#parcerias" },
-  { label: "Sobre", href: "#sobre" },
+  {label: "Inscrição", href: "#hero"},
+  {label: "Eventos", href: "#eventos"},
+  {label: "Galeria", href: "#galeria"},
+  {label: "Parceiros", href: "#parcerias"},
+  {label: "Equipe", href: "#equipe"},
+  {label: "Sobre", href: "#sobre"},
 ];
 
 const Header = () => {
@@ -35,7 +35,8 @@ const Header = () => {
       <div className="container mx-auto px-6 flex items-center justify-between h-16">
         <a href="#" className="flex items-center gap-2">
           {/*<img src={logo} alt="Norte4j" className="w-8 h-8" />*/}
-          <span className={`font-display font-bold text-lg transition-colors ${scrolled ? "text-foreground" : "text-primary-foreground"}`}>Norte4j Community</span>
+          <span
+            className={`font-display font-bold text-lg transition-colors ${scrolled ? "text-foreground" : "text-primary-foreground"}`}>Norte4j Community</span>
         </a>
 
         {/* Desktop nav */}
@@ -72,7 +73,7 @@ const Header = () => {
             className={`p-2 rounded-lg transition-colors ${scrolled ? "text-muted-foreground hover:text-foreground hover:bg-muted" : "text-primary-foreground/80 hover:text-primary-foreground"}`}
             aria-label="Menu"
           >
-            {isOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+            {isOpen ? <X className="w-5 h-5"/> : <Menu className="w-5 h-5"/>}
           </button>
         </div>
       </div>
@@ -81,9 +82,9 @@ const Header = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.nav
-            initial={{ opacity: 0, height: 0 }}
-            animate={{ opacity: 1, height: "auto" }}
-            exit={{ opacity: 0, height: 0 }}
+            initial={{opacity: 0, height: 0}}
+            animate={{opacity: 1, height: "auto"}}
+            exit={{opacity: 0, height: 0}}
             className="md:hidden bg-background/95 backdrop-blur-md border-t border-border overflow-hidden"
           >
             <div className="container mx-auto px-6 py-4 flex flex-col gap-1">

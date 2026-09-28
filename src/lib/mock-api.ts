@@ -38,6 +38,22 @@ export interface Partner {
   image?: string;
 }
 
+export interface TeamMember {
+  id: string;
+  nome: string;
+  idade: number;
+  papel: string;
+  foto?: string;
+  redes_sociais: SocialLink[];
+}
+
+export type SocialIcon = 'link' | 'linkedin' | 'facebook' | 'github' | 'instagram';
+
+export interface SocialLink {
+  url: string;
+  icone: SocialIcon;
+}
+
 export interface SiteText {
   id: string;
   key: string;
@@ -69,6 +85,7 @@ export const eventsApi = crud<EventItem>('events');
 export const workshopsApi = crud<EventItem>('workshops');
 export const galleryApi = crud<GalleryPhoto>('gallery');
 export const partnersApi = crud<Partner>('partners');
+export const teamApi = crud<TeamMember>('team');
 export const textsApi = crud<SiteText>('texts');
 export const contactsApi = crud<ContactItem>('contacts');
 export const uploadsApi = {
