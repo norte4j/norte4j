@@ -1,21 +1,12 @@
-import axios, { AxiosInstance } from "axios";
+import axios from 'axios';
 
-// Mock interceptor that uses localStorage instead of real API calls
-const api: AxiosInstance = axios.create({ baseURL: "/api" });
+const api = axios.create({baseURL: import.meta.env.VITE_API_URL || '/api'});
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem('cms_token');
+  if (token) config.headers.Authorization = `Bearer ${token}`;
+  return config;
+});
 
-function getStore<T>(key: string, fallback: T[]): T[] {
-  try {
-    const raw = localStorage.getItem(key);
-    return raw ? JSON.parse(raw) : fallback;
-  } catch {
-    return fallback;
-  }
-}
-function setStore<T>(key: string, data: T[]) {
-  localStorage.setItem(key, JSON.stringify(data));
-}
-
-// --- Types ---
 export interface EventItem {
   id: string;
   title: string;
@@ -25,14 +16,18 @@ export interface EventItem {
   location: string;
   description: string;
   longDescription: string;
-  status: "upcoming" | "soon";
+  status: 'upcoming' | 'soon' | "finished";
   topics: string[];
+  image?: string;
 }
 
 export interface GalleryPhoto {
   id: string;
   src: string;
   alt: string;
+  storagePath?: string;
+  type?: string;
+  sortOrder?: number;
 }
 
 export interface Partner {
@@ -40,6 +35,23 @@ export interface Partner {
   name: string;
   description: string;
   link?: string;
+  image?: string;
+}
+
+export interface TeamMember {
+  id: string;
+  nome: string;
+  idade: number;
+  papel: string;
+  foto?: string;
+  redes_sociais: SocialLink[];
+}
+
+export type SocialIcon = 'link' | 'linkedin' | 'facebook' | 'github' | 'instagram';
+
+export interface SocialLink {
+  url: string;
+  icone: SocialIcon;
 }
 
 export interface SiteText {
@@ -49,205 +61,47 @@ export interface SiteText {
   value: string;
 }
 
-// --- Seed data ---
-const seedEvents: EventItem[] = [
-  {
-    id: "1",
-    title: "1º Meetup Norte4j",
-    slug: "1-meetup-norte4j",
-    date: "11/04/2026",
-    time: "08:00h",
-    location: "Belém — PA",
-    description: "Nosso primeiro encontro presencial com palestras sobre Spring Boot, Kotlin e arquitetura de software.",
-    longDescription: "O 1º Meetup Norte4j é o marco inicial da comunidade Java & Kotlin da Região Norte.",
-    status: "upcoming",
-    topics: ["Spring Boot", "Kotlin", "Arquitetura de Software"],
-  },
-  {
-    id: "2",
-    title: "Workshop Kotlin para Android",
-    slug: "workshop-kotlin-android",
-    date: "Em breve",
-    time: "A definir",
-    location: "Belém — PA",
-    description: "Hands-on de desenvolvimento mobile com Kotlin, Jetpack Compose e boas práticas.",
-    longDescription: "Um workshop intensivo focado em desenvolvimento Android moderno com Kotlin.",
-    status: "soon",
-    topics: ["Kotlin", "Jetpack Compose", "Android"],
-  },
-  {
-    id: "3",
-    title: "Hackathon Norte4j",
-    slug: "hackathon-norte4j",
-    date: "Em breve",
-    time: "A definir",
-    location: "Belém — PA",
-    description: "Maratona de programação com desafios reais usando tecnologias Java e Kotlin.",
-    longDescription: "O Hackathon Norte4j reunirá equipes de desenvolvedores para resolver desafios reais.",
-    status: "soon",
-    topics: ["Java", "Kotlin", "Spring Boot"],
-  },
-];
-
-const seedGallery: GalleryPhoto[] = [
-  { id: "1", src: "/src/assets/banner_norte4j.png", alt: "Norte4j Meetup" },
-  { id: "2", src: "/src/assets/banner_norte4j.png", alt: "Palestras técnicas" },
-  { id: "3", src: "/src/assets/banner_norte4j.png", alt: "Comunidade Norte4j" },
-];
-
-const seedPartners: Partner[] = [
-  { id: "1", name: "Studio Code", description: "Empresa de tecnologia parceira na organização e apoio logístico dos eventos.", link: "https://studiocode.com" },
-  { id: "2", name: "DEVs Norte", description: "Comunidade de desenvolvedores da Região Norte que impulsiona o ecossistema tech local.", link: "https://devsnorte.com" },
-];
-
-const seedTexts: SiteText[] = [
-  { id: "1", key: "hero_title", label: "Título do Hero", value: "Norte4j" },
-  { id: "2", key: "hero_subtitle", label: "Subtítulo do Hero", value: "Java & Kotlin Community — Região Norte" },
-  { id: "3", key: "meetup_cta", label: "Texto do botão de inscrição", value: "Participação Gratuita — Inscreva-se!" },
-  { id: "4", key: "about_title", label: "Título Sobre", value: "Sobre a Norte4j" },
-];
-
-// Initialize localStorage with seed data if empty
-function initStore() {
-  if (!localStorage.getItem("cms_events")) setStore("cms_events", seedEvents);
-  if (!localStorage.getItem("cms_gallery")) setStore("cms_gallery", seedGallery);
-  if (!localStorage.getItem("cms_partners")) setStore("cms_partners", seedPartners);
-  if (!localStorage.getItem("cms_texts")) setStore("cms_texts", seedTexts);
+export interface ContactItem {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  subject?: string;
+  message: string;
+  status: string;
+  createdAt?: string;
 }
-initStore();
 
-// --- Mock API interceptor ---
-api.interceptors.request.use((config) => {
-  // We'll handle everything in the response interceptor
-  return config;
+const crud = <T>(resource: string) => ({
+  getAll: async (): Promise<T[]> => (await api.get<T[]>(`/${resource}`)).data,
+  getOne: async (id: string): Promise<T> => (await api.get<T>(`/${resource}/${id}`)).data,
+  create: async (data: Omit<T, 'id'>): Promise<T> => (await api.post<T>(`/${resource}`, data)).data,
+  update: async (id: string, data: Partial<T>): Promise<T> => (await api.patch<T>(`/${resource}/${id}`, data)).data,
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/${resource}/${id}`);
+  },
 });
-
-// Helper to simulate async delay
-const delay = (ms = 200) => new Promise((r) => setTimeout(r, ms));
-
-// --- API functions ---
-
-// Events
-export const eventsApi = {
-  getAll: async (): Promise<EventItem[]> => {
-    await delay();
-    return getStore<EventItem>("cms_events", seedEvents);
+export const eventsApi = crud<EventItem>('events');
+export const workshopsApi = crud<EventItem>('workshops');
+export const galleryApi = crud<GalleryPhoto>('gallery');
+export const partnersApi = crud<Partner>('partners');
+export const teamApi = crud<TeamMember>('team');
+export const textsApi = crud<SiteText>('texts');
+export const contactsApi = crud<ContactItem>('contacts');
+export const uploadsApi = {
+  upload: async (file: File) => {
+    const body = new FormData();
+    body.append('file', file);
+    return (await api.post<{ url: string; path: string; type: string }>('/uploads', body)).data;
   },
-  create: async (event: Omit<EventItem, "id">): Promise<EventItem> => {
-    await delay();
-    const items = getStore<EventItem>("cms_events", []);
-    const newItem = { ...event, id: Date.now().toString() };
-    items.push(newItem);
-    setStore("cms_events", items);
-    return newItem;
-  },
-  update: async (id: string, event: Partial<EventItem>): Promise<EventItem> => {
-    await delay();
-    const items = getStore<EventItem>("cms_events", []);
-    const idx = items.findIndex((e) => e.id === id);
-    if (idx === -1) throw new Error("Event not found");
-    items[idx] = { ...items[idx], ...event };
-    setStore("cms_events", items);
-    return items[idx];
-  },
-  delete: async (id: string): Promise<void> => {
-    await delay();
-    const items = getStore<EventItem>("cms_events", []).filter((e) => e.id !== id);
-    setStore("cms_events", items);
-  },
+  uploadImage: async (file: File) => {
+    const body = new FormData();
+    body.append('file', file);
+    return (await api.post<{ url: string; path: string; type: string }>('/uploads/images', body)).data;
+  }
 };
-
-// Gallery
-export const galleryApi = {
-  getAll: async (): Promise<GalleryPhoto[]> => {
-    await delay();
-    return getStore<GalleryPhoto>("cms_gallery", seedGallery);
-  },
-  create: async (photo: Omit<GalleryPhoto, "id">): Promise<GalleryPhoto> => {
-    await delay();
-    const items = getStore<GalleryPhoto>("cms_gallery", []);
-    const newItem = { ...photo, id: Date.now().toString() };
-    items.push(newItem);
-    setStore("cms_gallery", items);
-    return newItem;
-  },
-  delete: async (id: string): Promise<void> => {
-    await delay();
-    const items = getStore<GalleryPhoto>("cms_gallery", []).filter((p) => p.id !== id);
-    setStore("cms_gallery", items);
-  },
+export const siteConfigApi = {
+  getAll: async (): Promise<Record<string, unknown>> => (await api.get<Record<string, unknown>>('/config')).data,
+  set: async (key: string, value: unknown) => (await api.put<{key: string; value: unknown}>(`/config/${encodeURIComponent(key)}`, {value})).data,
 };
-
-// Partners
-export const partnersApi = {
-  getAll: async (): Promise<Partner[]> => {
-    await delay();
-    return getStore<Partner>("cms_partners", seedPartners);
-  },
-  create: async (partner: Omit<Partner, "id">): Promise<Partner> => {
-    await delay();
-    const items = getStore<Partner>("cms_partners", []);
-    const newItem = { ...partner, id: Date.now().toString() };
-    items.push(newItem);
-    setStore("cms_partners", items);
-    return newItem;
-  },
-  update: async (id: string, partner: Partial<Partner>): Promise<Partner> => {
-    await delay();
-    const items = getStore<Partner>("cms_partners", []);
-    const idx = items.findIndex((p) => p.id === id);
-    if (idx === -1) throw new Error("Partner not found");
-    items[idx] = { ...items[idx], ...partner };
-    setStore("cms_partners", items);
-    return items[idx];
-  },
-  delete: async (id: string): Promise<void> => {
-    await delay();
-    const items = getStore<Partner>("cms_partners", []).filter((p) => p.id !== id);
-    setStore("cms_partners", items);
-  },
-};
-
-// Site Texts
-export const textsApi = {
-  getAll: async (): Promise<SiteText[]> => {
-    await delay();
-    return getStore<SiteText>("cms_texts", seedTexts);
-  },
-  update: async (id: string, text: Partial<SiteText>): Promise<SiteText> => {
-    await delay();
-    const items = getStore<SiteText>("cms_texts", []);
-    const idx = items.findIndex((t) => t.id === id);
-    if (idx === -1) throw new Error("Text not found");
-    items[idx] = { ...items[idx], ...text };
-    setStore("cms_texts", items);
-    return items[idx];
-  },
-};
-
-// Auth mock
-export const authApi = {
-  login: async (email: string, password: string): Promise<{ token: string; user: { email: string; name: string } }> => {
-    await delay(500);
-    if (email === "admin@norte4j.com" && password === "admin123") {
-      const session = { token: "mock-jwt-token", user: { email, name: "Admin Norte4j" } };
-      localStorage.setItem("cms_session", JSON.stringify(session));
-      return session;
-    }
-    throw new Error("Credenciais inválidas");
-  },
-  logout: async (): Promise<void> => {
-    await delay(100);
-    localStorage.removeItem("cms_session");
-  },
-  getSession: (): { token: string; user: { email: string; name: string } } | null => {
-    try {
-      const raw = localStorage.getItem("cms_session");
-      return raw ? JSON.parse(raw) : null;
-    } catch {
-      return null;
-    }
-  },
-};
-
 export default api;

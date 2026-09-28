@@ -14,6 +14,8 @@ import CmsEvents from "./pages/cms/CmsEvents.tsx";
 import CmsGallery from "./pages/cms/CmsGallery.tsx";
 import CmsPartners from "./pages/cms/CmsPartners.tsx";
 import CmsTexts from "./pages/cms/CmsTexts.tsx";
+import CmsContacts from "./pages/cms/CmsContacts.tsx";
+import CmsTeam from "./pages/cms/CmsTeam.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
 const queryClient = new QueryClient();
@@ -39,9 +41,12 @@ const App = () => (
             >
               <Route index element={<Dashboard />} />
               <Route path="eventos" element={<CmsEvents />} />
+              <Route path="workshops" element={<CmsEvents kind="workshops" />} />
               <Route path="galeria" element={<CmsGallery />} />
               <Route path="parceiros" element={<CmsPartners />} />
+              <Route path="equipe" element={<CmsTeam />} />
               <Route path="textos" element={<CmsTexts />} />
+              <Route path="contatos" element={<CmsContacts />} />
             </Route>
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

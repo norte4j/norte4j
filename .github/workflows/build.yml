@@ -22,6 +22,9 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 24
+      - name: Create .env file
+        run: |
+          echo "VITE_API_URL=${{ secrets.API_URL }}" >> .env
       - name: Install dependencies
         run: npm i --force
       - name: Build
@@ -40,9 +43,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: daniel101/norte4j-web:${{ env.IMAGE_VERSION }}
-      - name: Create release in infra
-        env:
-          GH_TOKEN: ${{ secrets.GH_PA_TOKEN }}
-        run: |
-          gh release create ${{ env.IMAGE_VERSION }} --repo norte4j/norte4j-infra
+          tags: daniel101/norte4j-web:${{ env.IMAGE_VERSION }},daniel101/norte4j-web:latest

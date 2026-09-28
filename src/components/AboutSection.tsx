@@ -1,7 +1,8 @@
-import { motion } from "framer-motion";
+﻿import { motion } from "framer-motion";
 import { Users, Code, Lightbulb } from "lucide-react";
 
-const AboutSection = () => (
+const AboutSection = () => {
+  return (
   <section id="sobre" className="py-24 bg-muted/50">
     <div className="container mx-auto px-6">
       <div className="max-w-3xl mx-auto text-center">
@@ -20,16 +21,14 @@ const AboutSection = () => (
           viewport={{ once: true }}
           transition={{ delay: 0.2 }}
         >
-          A Norte4j é a comunidade de desenvolvedores Java e Kotlin da Região Norte do Brasil. 
-          Nosso objetivo é conectar profissionais, compartilhar conhecimento e fortalecer o ecossistema 
-          de tecnologia na Amazônia através de meetups, palestras e eventos presenciais.
+          A Norte4j é a comunidade de desenvolvedores Java e Kotlin da Região Norte do Brasil. Nosso objetivo é conectar profissionais, compartilhar conhecimento e fortalecer o ecossistema de tecnologia na Amazônia através de meetups, palestras e eventos presenciais.
         </motion.p>
 
         <div className="grid md:grid-cols-3 gap-8">
           {[
-            { icon: Users, label: "Comunidade", text: "Rede de devs da Região Norte" },
-            { icon: Code, label: "Conhecimento", text: "Palestras e workshops técnicos" },
-            { icon: Lightbulb, label: "Inovação", text: "Novas tecnologias e tendências" },
+            { icon: Users, label: "Comunidade", text: "Rede de devs da RegiÃ£o Norte" },
+            { icon: Code, label: "Conhecimento", text: "Palestras e workshops tÃ©cnicos" },
+            { icon: Lightbulb, label: "InovaÃ§Ã£o", text: "Novas tecnologias e tendÃªncias" },
           ].map((item, i) => (
             <motion.div
               key={item.label}
@@ -50,6 +49,7 @@ const AboutSection = () => (
       </div>
     </div>
   </section>
-);
+  );
+};
 
 export default AboutSection;

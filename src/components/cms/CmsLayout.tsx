@@ -1,14 +1,17 @@
 import { NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useAuth } from "@/contexts/AuthContext";
-import { Calendar, Image, Handshake, FileText, LogOut, LayoutDashboard } from "lucide-react";
+import { Calendar, Image, Handshake, FileText, LogOut, LayoutDashboard, GraduationCap, Mail, Users } from "lucide-react";
 import logo from "@/assets/norte4j-logo.png";
 
 const navItems = [
   { label: "Dashboard", href: "/cms", icon: LayoutDashboard, end: true },
   { label: "Eventos", href: "/cms/eventos", icon: Calendar },
+  { label: "Workshops", href: "/cms/workshops", icon: GraduationCap },
   { label: "Galeria", href: "/cms/galeria", icon: Image },
   { label: "Parceiros", href: "/cms/parceiros", icon: Handshake },
+  { label: "Equipe", href: "/cms/equipe", icon: Users },
   { label: "Textos", href: "/cms/textos", icon: FileText },
+  { label: "Contatos", href: "/cms/contatos", icon: Mail },
 ];
 
 const CmsLayout = () => {

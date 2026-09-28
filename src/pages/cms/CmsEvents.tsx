@@ -1,10 +1,10 @@
-import { useEffect, useState } from "react";
-import { eventsApi, type EventItem } from "@/lib/mock-api";
+import { useEffect, useRef, useState } from "react";
+import { eventsApi, uploadsApi, workshopsApi, type EventItem } from "@/lib/mock-api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Plus, Pencil, Trash2, X } from "lucide-react";
+import { ImageIcon, Plus, Pencil, Trash2, Upload, X } from "lucide-react";
 import { toast } from "sonner";
 
 const emptyEvent: Omit<EventItem, "id"> = {
@@ -12,20 +12,44 @@ const emptyEvent: Omit<EventItem, "id"> = {
   description: "", longDescription: "", status: "soon", topics: [],
 };
 
-const CmsEvents = () => {
+const CmsEvents = ({ kind = "events" }: { kind?: "events" | "workshops" }) => {
+  const resourceApi = kind === "workshops" ? workshopsApi : eventsApi;
+  const pageTitle = kind === "workshops" ? "Workshops" : "Eventos";
   const [events, setEvents] = useState<EventItem[]>([]);
   const [editing, setEditing] = useState<EventItem | null>(null);
   const [creating, setCreating] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
   const [form, setForm] = useState(emptyEvent);
   const [topicsInput, setTopicsInput] = useState("");
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
 
-  const load = () => eventsApi.getAll().then(setEvents);
-  useEffect(() => { load(); }, []);
+  const load = () => resourceApi.getAll().then(setEvents);
+  useEffect(() => {
+    let active = true;
+    setEvents([]);
+    setLoading(true);
+    setLoadError(false);
+    resourceApi.getAll().then((items) => {
+      if (active) setEvents(items);
+    }).catch(() => {
+      if (active) setLoadError(true);
+    }).finally(() => {
+      if (active) setLoading(false);
+    });
+    return () => {
+      active = false;
+    };
+  }, [kind, resourceApi]);
 
   const openCreate = () => {
     setEditing(null);
     setForm(emptyEvent);
     setTopicsInput("");
+    setImageFile(null);
+    setImagePreview(null);
     setCreating(true);
   };
 
@@ -34,18 +58,33 @@ const CmsEvents = () => {
     setEditing(event);
     setForm(event);
     setTopicsInput(event.topics.join(", "));
+    setImageFile(null);
+    setImagePreview(event.image || null);
   };
 
-  const close = () => { setCreating(false); setEditing(null); };
+  const close = () => {
+    setCreating(false); setEditing(null); setImageFile(null); setImagePreview(null);
+    if (imageInputRef.current) imageInputRef.current.value = "";
+  };
+
+  const handleImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
+    if (!file.type.startsWith("image/")) { toast.error("Selecione apenas imagens"); return; }
+    if (file.size > 10 * 1024 * 1024) { toast.error("A imagem deve ter no máximo 10 MB"); return; }
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
 
   const handleSave = async () => {
     const data = { ...form, topics: topicsInput.split(",").map((t) => t.trim()).filter(Boolean) };
     try {
+      if (imageFile) data.image = (await uploadsApi.uploadImage(imageFile)).url;
       if (editing) {
-        await eventsApi.update(editing.id, data);
+        await resourceApi.update(editing.id, data);
         toast.success("Evento atualizado!");
       } else {
-        await eventsApi.create(data);
+        await resourceApi.create(data);
         toast.success("Evento criado!");
       }
       close();
@@ -57,7 +96,7 @@ const CmsEvents = () => {
 
   const handleDelete = async (id: string) => {
     if (!confirm("Excluir este evento?")) return;
-    await eventsApi.delete(id);
+    await resourceApi.delete(id);
     toast.success("Evento excluído");
     load();
   };
@@ -67,7 +106,7 @@ const CmsEvents = () => {
   return (
     <div>
       <div className="flex items-center justify-between mb-6">
-        <h1 className="font-display text-3xl font-bold text-foreground">Eventos</h1>
+        <h1 className="font-display text-3xl font-bold text-foreground">{pageTitle}</h1>
         {!showForm && (
           <Button onClick={openCreate}><Plus className="w-4 h-4 mr-2" /> Novo Evento</Button>
         )}
@@ -107,10 +146,11 @@ const CmsEvents = () => {
               <select
                 className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background"
                 value={form.status}
-                onChange={(e) => setForm({ ...form, status: e.target.value as "upcoming" | "soon" })}
+                onChange={(e) => setForm({ ...form, status: e.target.value as "upcoming" | "soon" | "finished" })}
               >
                 <option value="upcoming">Confirmado</option>
                 <option value="soon">Em breve</option>
+                <option value="finished">Encerrado</option>
               </select>
             </div>
             <div className="space-y-2 md:col-span-2">
@@ -124,6 +164,14 @@ const CmsEvents = () => {
             <div className="space-y-2 md:col-span-2">
               <Label>Tópicos (separados por vírgula)</Label>
               <Input value={topicsInput} onChange={(e) => setTopicsInput(e.target.value)} placeholder="Spring Boot, Kotlin, ..." />
+            </div>
+            <div className="space-y-2 md:col-span-2">
+              <Label>Imagem</Label>
+              <div onClick={() => imageInputRef.current?.click()} className="relative cursor-pointer overflow-hidden rounded-xl border-2 border-dashed border-border hover:border-primary/50">
+                {imagePreview ? <img src={imagePreview} alt="Preview" className="h-40 w-full object-cover" /> : <div className="flex flex-col items-center py-8 text-muted-foreground"><Upload className="mb-2 h-8 w-8" /><span className="text-sm">Clique para enviar uma imagem</span><span className="text-xs">PNG, JPG ou WEBP (máx. 10 MB)</span></div>}
+              </div>
+              <input ref={imageInputRef} type="file" accept="image/*" onChange={handleImageChange} className="hidden" />
+              {imagePreview && <div className="mt-2 flex items-center gap-2 text-xs text-muted-foreground"><ImageIcon className="h-4 w-4" />Imagem selecionada</div>}
             </div>
           </div>
           <div className="flex gap-3 mt-6">
@@ -144,7 +192,13 @@ const CmsEvents = () => {
             </tr>
           </thead>
           <tbody>
-            {events.map((event) => (
+            {loading && (
+              <tr><td colSpan={4} className="p-8 text-center text-muted-foreground">Carregando conteúdo...</td></tr>
+            )}
+            {!loading && loadError && (
+              <tr><td colSpan={4} className="p-8 text-center text-destructive">Não foi possível carregar o conteúdo.</td></tr>
+            )}
+            {!loading && !loadError && events.map((event) => (
               <tr key={event.id} className="border-b border-border last:border-0">
                 <td className="p-4 text-sm font-medium text-foreground">{event.title}</td>
                 <td className="p-4 text-sm text-muted-foreground">{event.date}</td>
@@ -152,7 +206,9 @@ const CmsEvents = () => {
                   <span className={`text-xs font-bold px-2.5 py-1 rounded-full ${
                     event.status === "upcoming" ? "bg-accent/20 text-accent" : "bg-muted text-muted-foreground"
                   }`}>
-                    {event.status === "upcoming" ? "Confirmado" : "Em breve"}
+                    {event.status === "upcoming" && <span className="ml-2 text-xs font-normal">Confirmado</span>}
+                    {event.status === "soon" && <span className="ml-2 text-xs font-normal">Em breve</span>}
+                    {event.status === "finished" && <span className="ml-2 text-xs font-normal">Encerrado</span>}
                   </span>
                 </td>
                 <td className="p-4 text-right space-x-2">
@@ -161,7 +217,7 @@ const CmsEvents = () => {
                 </td>
               </tr>
             ))}
-            {events.length === 0 && (
+            {!loading && !loadError && events.length === 0 && (
               <tr><td colSpan={4} className="p-8 text-center text-muted-foreground">Nenhum evento cadastrado</td></tr>
             )}
           </tbody>

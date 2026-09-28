@@ -1,5 +1,5 @@
 import { useEffect, useState, useRef } from "react";
-import { galleryApi, type GalleryPhoto } from "@/lib/mock-api";
+import { galleryApi, siteConfigApi, uploadsApi, type GalleryPhoto } from "@/lib/mock-api";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,8 @@ const CmsGallery = () => {
   const [creating, setCreating] = useState(false);
   const [preview, setPreview] = useState<string | null>(null);
   const [alt, setAlt] = useState("");
+  const [file, setFile] = useState<File | null>(null);
+  const [draggingId, setDraggingId] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const load = () => galleryApi.getAll().then(setPhotos);
@@ -24,10 +26,11 @@ const CmsGallery = () => {
       toast.error("Selecione apenas arquivos de imagem");
       return;
     }
-    if (file.size > 5 * 1024 * 1024) {
+    if (file.size > 10 * 1024 * 1024) {
       toast.error("Imagem deve ter no máximo 5MB");
       return;
     }
+    setFile(file);
 
     const reader = new FileReader();
     reader.onload = () => {
@@ -38,13 +41,18 @@ const CmsGallery = () => {
   };
 
   const handleCreate = async () => {
-    if (!preview) { toast.error("Selecione uma imagem"); return; }
+    if (!preview || !file) { toast.error("Selecione uma imagem"); return; }
     if (!alt) { toast.error("Preencha a descrição"); return; }
-    await galleryApi.create({ src: preview, alt });
-    toast.success("Foto adicionada!");
-    setPreview(null); setAlt(""); setCreating(false);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-    load();
+    try {
+      const uploaded = await uploadsApi.uploadImage(file);
+      await galleryApi.create({ src: uploaded.url, alt, storagePath: uploaded.path, type: uploaded.type });
+      toast.success("Foto adicionada!");
+      setPreview(null); setFile(null); setAlt(""); setCreating(false);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      load();
+    } catch {
+      toast.error("Não foi possível enviar a imagem");
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -54,8 +62,28 @@ const CmsGallery = () => {
     load();
   };
 
+  const handleDrop = async (targetId: string) => {
+    if (!draggingId || draggingId === targetId) return;
+    const from = photos.findIndex((photo) => photo.id === draggingId);
+    const to = photos.findIndex((photo) => photo.id === targetId);
+    if (from < 0 || to < 0) return;
+    const reordered = [...photos];
+    const [moved] = reordered.splice(from, 1);
+    reordered.splice(to, 0, moved);
+    const ordered = reordered;
+    setPhotos(ordered);
+    setDraggingId(null);
+    try {
+      await siteConfigApi.set("gallery.order", ordered.map((photo) => photo.id));
+      toast.success("Ordem da galeria salva!");
+    } catch {
+      toast.error("Não foi possível salvar a ordem da galeria");
+      load();
+    }
+  };
+
   const close = () => {
-    setCreating(false); setPreview(null); setAlt("");
+    setCreating(false); setPreview(null); setFile(null); setAlt("");
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -133,7 +161,7 @@ const CmsGallery = () => {
 
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {photos.map((photo) => (
-          <div key={photo.id} className="relative group bg-card rounded-xl border border-border overflow-hidden shadow-card">
+          <div key={photo.id} draggable onDragStart={() => setDraggingId(photo.id)} onDragOver={(event) => event.preventDefault()} onDrop={() => handleDrop(photo.id)} className={`relative group bg-card rounded-xl border border-border overflow-hidden shadow-card cursor-grab active:cursor-grabbing ${draggingId === photo.id ? "opacity-50" : ""}`}>
             <img src={photo.src} alt={photo.alt} className="w-full aspect-video object-cover" />
             <div className="p-3 flex items-center justify-between">
               <span className="text-sm text-muted-foreground truncate">{photo.alt}</span>
