@@ -1,0 +1,47 @@
+# Dependencies
+node_modules
+
+# Version control
+.git
+.github
+
+# IDE
+.vscode
+.idea
+
+# Environment files
+.env
+.env.local
+.env.*.local
+
+# Lock files (npm is used, exclude others)
+bun.lock
+bun.lockb
+
+# Test files
+src/test
+**/*.test.ts
+**/*.test.tsx
+**/*.spec.ts
+**/*.spec.tsx
+vitest.config.ts
+
+# Documentation
+README.md
+
+# Config files not needed in runtime
+tsconfig.json
+tsconfig.app.json
+tsconfig.node.json
+vite.config.ts
+eslint.config.js
+postcss.config.js
+tailwind.config.ts
+components.json
+
+# CI/CD
+.github/workflows
+
+# Logs
+npm-debug.log*
+*.log

@@ -1,4 +1,4 @@
-import { Linkedin, Instagram } from "lucide-react";
+﻿import { Linkedin, Instagram } from "lucide-react";
 import WhatsAppLogo from "@/assets/wpp.png";
 import GithubLogo from "@/assets/github.png";
 
@@ -17,13 +17,14 @@ const socials = [
   { icon: GithubLogoComponent, label: "Github", href: "https://github.com/norte4j" },
 ];
 
-const FooterSection = () => (
+const FooterSection = () => {
+  return (
   <footer className="py-12 bg-foreground">
     <div className="container mx-auto px-6">
       <div className="flex flex-col items-center gap-6">
         <p className="font-display text-xl font-bold text-primary-foreground">Norte4j</p>
         <p className="text-sm text-primary-foreground/60">
-          Java & Kotlin Community — Região Norte
+          Java & Kotlin Community - Região Norte
         </p>
 
         <div className="flex items-center gap-3">
@@ -47,6 +48,7 @@ const FooterSection = () => (
       </div>
     </div>
   </footer>
-);
+  );
+};
 
 export default FooterSection;
