@@ -44,8 +44,3 @@ jobs:
           context: .
           push: true
           tags: daniel101/norte4j-web:${{ env.IMAGE_VERSION }},daniel101/norte4j-web:latest
-      - name: Create release in infra
-        env:
-          GH_TOKEN: ${{ secrets.GH_PA_TOKEN }}
-        run: |
-          gh release create ${{ env.IMAGE_VERSION }} --repo norte4j/norte4j-infra
