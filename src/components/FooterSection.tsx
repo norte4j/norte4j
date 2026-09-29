@@ -32,6 +32,7 @@ const FooterSection = () => {
             <a
               key={s.label}
               href={s.href}
+              data-analytics-tag={`footer_${s.label.toLowerCase()}`}
               target="_blank"
               rel="noopener noreferrer"
               aria-label={s.label}

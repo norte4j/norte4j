@@ -39,7 +39,7 @@ const TeamSection = () => {
                 {member.redes_sociais?.map((item) => {
                   const social = normalizeSocial(item);
                   const Icon = socialIcons[social.icone] || Link;
-                  return <a key={`${social.icone}-${social.url}`} href={social.url} target="_blank" rel="noopener noreferrer" aria-label={`${social.icone} de ${member.nome}`} title={social.icone} className="p-2 rounded-full bg-muted text-muted-foreground hover:text-primary transition-colors"><Icon className="w-4 h-4" /></a>;
+                  return <a key={`${social.icone}-${social.url}`} href={social.url} data-analytics-tag={`team_social_${social.icone}`} target="_blank" rel="noopener noreferrer" aria-label={`${social.icone} de ${member.nome}`} title={social.icone} className="p-2 rounded-full bg-muted text-muted-foreground hover:text-primary transition-colors"><Icon className="w-4 h-4" /></a>;
                 })}
               </div>
             </motion.article>

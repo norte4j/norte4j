@@ -17,6 +17,7 @@ import CmsTexts from "./pages/cms/CmsTexts.tsx";
 import CmsContacts from "./pages/cms/CmsContacts.tsx";
 import CmsTeam from "./pages/cms/CmsTeam.tsx";
 import NotFound from "./pages/NotFound.tsx";
+import AnalyticsTracker from "./components/AnalyticsTracker.tsx";
 
 const queryClient = new QueryClient();
 
@@ -27,6 +28,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
+          <AnalyticsTracker />
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/evento/:slug" element={<EventDetails />} />

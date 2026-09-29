@@ -33,7 +33,7 @@ const Header = () => {
       }`}
     >
       <div className="container mx-auto px-6 flex items-center justify-between h-16">
-        <a href="#" className="flex items-center gap-2">
+        <a href="#" data-analytics-tag="nav_logo" className="flex items-center gap-2">
           {/*<img src={logo} alt="Norte4j" className="w-8 h-8" />*/}
           <span
             className={`font-display font-bold text-lg transition-colors ${scrolled ? "text-foreground" : "text-primary-foreground"}`}>Norte4j Community</span>
@@ -45,6 +45,7 @@ const Header = () => {
             <a
               key={item.label}
               href={item.href}
+              data-analytics-tag={`nav_${item.href.slice(1)}`}
               className={`px-4 py-2 text-sm font-medium transition-colors rounded-lg ${scrolled ? "text-muted-foreground hover:text-foreground hover:bg-muted" : "text-primary-foreground/80 hover:text-primary-foreground"}`}
             >
               {item.label}
@@ -92,6 +93,7 @@ const Header = () => {
                 <a
                   key={item.label}
                   href={item.href}
+                  data-analytics-tag={`nav_mobile_${item.href.slice(1)}`}
                   onClick={() => setIsOpen(false)}
                   className="px-4 py-3 text-sm font-medium text-muted-foreground hover:text-foreground hover:bg-muted rounded-lg transition-colors"
                 >

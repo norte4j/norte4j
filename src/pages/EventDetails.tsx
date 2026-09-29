@@ -156,7 +156,7 @@ const EventDetails = () => {
         <section className="min-h-screen flex items-center justify-center pt-16">
           <div className="text-center">
             <h1 className="font-display text-3xl font-bold text-foreground mb-4">Evento não encontrado</h1>
-            <Link to="/" className="text-primary hover:text-primary/80 font-medium inline-flex items-center gap-2">
+            <Link to="/" data-analytics-tag="event_not_found_back" className="text-primary hover:text-primary/80 font-medium inline-flex items-center gap-2">
               <ArrowLeft className="w-4 h-4" /> Voltar ao início
             </Link>
           </div>
@@ -174,6 +174,7 @@ const EventDetails = () => {
         <div className="container mx-auto px-6">
           <Link
             to="/"
+            data-analytics-tag="event_back"
             className="inline-flex items-center gap-2 text-primary-foreground/80 hover:text-primary-foreground text-sm font-medium mb-8 transition-colors"
           >
             <ArrowLeft className="w-4 h-4" /> Voltar
@@ -256,7 +257,7 @@ const EventDetails = () => {
                         <p className="text-sm text-primary font-medium mt-2">{speaker.talk}</p>
 
                         <div className="flex items-center gap-2 mt-4">
-                          <a href={speaker.link} target="_blank">
+                          <a href={speaker.link} data-analytics-tag="speaker_linkedin" target="_blank">
                             <Linkedin className="w-5 h-5 text-primary hover:text-primary/80 transition-colors" />
                           </a>
                         </div>
@@ -294,6 +295,7 @@ const EventDetails = () => {
                 {event.status === "upcoming" ? (
                   <a
                     href="https://www.sympla.com.br/evento/meetup-norte4j---java--kotlin-community/3341647"
+                    data-analytics-tag="event_registration"
                     target="_blank"
                     className="w-full inline-flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-6 py-3 rounded-xl transition-all hover:shadow-elevated text-center"
                   >

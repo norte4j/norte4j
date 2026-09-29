@@ -63,7 +63,7 @@ const HeroSection = () => {
                 {nextEvent.time && <div className="flex items-center gap-2"><Clock className="w-5 h-5 text-white" /><span className="font-medium text-white">{nextEvent.time}</span></div>}
                 {nextEvent.location && <div className="flex items-center gap-2"><MapPin className="w-5 h-5 text-white" /><span className="font-medium text-white">{nextEvent.location}</span></div>}
               </div>
-              <a href="#eventos" className="inline-block bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg px-8 py-3.5 rounded-xl transition-all hover:shadow-elevated">Ver evento</a>
+              <a href="#eventos" data-analytics-tag="hero_view_event" className="inline-block bg-primary hover:bg-primary/90 text-primary-foreground font-bold text-lg px-8 py-3.5 rounded-xl transition-all hover:shadow-elevated">Ver evento</a>
             </div>
           </motion.div>
         )}

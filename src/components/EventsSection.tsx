@@ -84,6 +84,7 @@ const EventsSection = () => {
               </div>
               <Link
                 to={`/evento/${event.slug}`}
+                data-analytics-tag="event_details"
                 className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary/80 transition-colors"
               >
                 Ver detalhes <ArrowRight className="w-3.5 h-3.5"/>

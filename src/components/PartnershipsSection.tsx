@@ -49,6 +49,7 @@ const PartnershipsSection = () => {
           {!loading && partners.map((partner, i) => (
             <motion.div
               key={partner.id}
+              data-analytics-tag="partner_card"
               onClick={() => partner.link && window.open(partner.link, '_blank', 'noopener,noreferrer')}
               className={`bg-card rounded-2xl p-8 shadow-card border border-border text-center transition-shadow ${partner.link ? "hover:cursor-pointer hover:shadow-elevated" : ""}`}
               initial={{opacity: 0, y: 20}}
@@ -74,7 +75,7 @@ const PartnershipsSection = () => {
             {partnerBenefits.map((benefit) => <li key={benefit} className="flex items-start gap-2"><span
               className="text-primary mt-0.5">✓</span>{benefit}</li>)}
           </ul>
-          <a href="mailto:marcelodaniel.daniel@gmail.com"
+          <a href="mailto:marcelodaniel.daniel@gmail.com" data-analytics-tag="partner_contact"
              className="inline-block bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8 py-3 rounded-xl transition-all hover:shadow-elevated">Entre
             em Contato</a>
         </motion.div>
