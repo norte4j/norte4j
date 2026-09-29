@@ -26,9 +26,9 @@ const AboutSection = () => {
 
         <div className="grid md:grid-cols-3 gap-8">
           {[
-            { icon: Users, label: "Comunidade", text: "Rede de devs da RegiÃ£o Norte" },
-            { icon: Code, label: "Conhecimento", text: "Palestras e workshops tÃ©cnicos" },
-            { icon: Lightbulb, label: "InovaÃ§Ã£o", text: "Novas tecnologias e tendÃªncias" },
+            { icon: Users, label: "Comunidade", text: "Rede de devs da Região Norte" },
+            { icon: Code, label: "Conhecimento", text: "Palestras e workshops técnicos" },
+            { icon: Lightbulb, label: "Inovação", text: "Novas tecnologias e tendências" },
           ].map((item, i) => (
             <motion.div
               key={item.label}
