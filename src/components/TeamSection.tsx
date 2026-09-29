@@ -35,7 +35,6 @@ const TeamSection = () => {
               {member.foto ? <img src={member.foto} alt={member.nome} className="w-28 h-28 mx-auto rounded-full object-cover ring-4 ring-primary/10" /> : <div className="w-28 h-28 mx-auto rounded-full bg-primary/10 flex items-center justify-center"><UserRound className="w-12 h-12 text-primary" /></div>}
               <h3 className="font-display text-xl font-bold text-foreground mt-5">{member.nome}</h3>
               <p className="text-primary font-medium mt-1">{member.papel}</p>
-              <p className="text-sm text-muted-foreground mt-1">{member.idade} anos</p>
               <div className="flex justify-center flex-wrap gap-2 mt-4">
                 {member.redes_sociais?.map((item) => {
                   const social = normalizeSocial(item);
